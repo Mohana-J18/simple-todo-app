@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>To-Do App</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .app {
+            background: white;
+            padding: 25px;
+            width: 350px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 5px;
+        }
+
+        input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 8px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .add-btn {
+            background: #28a745;
+        }
+
+        .filters button {
+            margin: 5px;
+            background: #007bff;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #f4f4f4;
+            margin: 5px 0;
+            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .delete {
+            background: red;
+        }
+
+        .complete {
+            background: orange;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <h2>🚀 Smart To-Do List</h2>
+
+    <div class="input-area">
+        <input type="text" id="taskInput" placeholder="Enter task...">
+        <button class="add-btn" onclick="addTask()">Add</button>
+    </div>
+
+    <div class="filters">
+        <button onclick="showAll()">All</button>
+        <button onclick="showPending()">Pending</button>
+        <button onclick="showCompleted()">Completed</button>
+    </div>
+
+    <ul id="taskList"></ul>
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+function saveTasks() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function renderTasks(filter = "all") {
+    const list = document.getElementById("taskList");
+    list.innerHTML = "";
+
+    tasks.forEach((task, index) => {
+        if (
+            filter === "all" ||
+            (filter === "pending" && !task.done) ||
+            (filter === "completed" && task.done)
+        ) {
+            let li = document.createElement("li");
+            li.className = task.done ? "completed" : "";
+
+            li.innerHTML = `
+                <span>${task.text}</span>
+                <div>
+                    <button class="complete" onclick="toggleTask(${index})">
+                        ${task.done ? "Undo" : "Done"}
+                    </button>
+                    <button class="delete" onclick="deleteTask(${index})">X</button>
+                </div>
+            `;
+            list.appendChild(li);
+        }
+    });
+}
+
+function addTask() {
+    let text = document.getElementById("taskInput").value;
+
+    if (text === "") {
+        alert("Please enter a task!");
+        return;
+    }
+
+    tasks.push({ text: text, done: false });
+    document.getElementById("taskInput").value = "";
+    saveTasks();
+    renderTasks();
+}
+
+function deleteTask(index) {
+    tasks.splice(index, 1);
+    saveTasks();
+    renderTasks();
+}
+
+function toggleTask(index) {
+    tasks[index].done = !tasks[index].done;
+    saveTasks();
+    renderTasks();
+}
+
+function showAll() {
+    renderTasks("all");
+}
+
+function showPending() {
+    renderTasks("pending");
+}
+
+function showCompleted() {
+    renderTasks("completed");
+}
+
+// Load tasks on page open
+renderTasks();
+</script>
+
+</body>
+</html>
